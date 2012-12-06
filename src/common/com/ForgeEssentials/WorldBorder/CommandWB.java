@@ -3,8 +3,11 @@ package com.ForgeEssentials.WorldBorder;
 import java.util.Arrays;
 import java.util.List;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.ICommandSender;
+import net.minecraft.src.WorldServer;
+
 import com.ForgeEssentials.core.commands.ForgeEssentialsCommandBase;
 import com.ForgeEssentials.util.Localization;
 import com.ForgeEssentials.util.OutputHandler;
@@ -28,7 +31,14 @@ public class CommandWB extends ForgeEssentialsCommandBase
 	@Override
 	public void processCommandPlayer(EntityPlayer sender, String[] args)
 	{
-		if (args.length == 2)
+		if (args.length == 1)
+		{
+			if(args[0].equalsIgnoreCase("fill"))
+			{
+				ModuleWorldBorder.fillBorder(sender.dimension, sender);
+			}
+		}
+		else if (args.length == 2)
 		{
 			if(args[0].equalsIgnoreCase("set"))
 			{
@@ -68,7 +78,15 @@ public class CommandWB extends ForgeEssentialsCommandBase
 	@Override
 	public void processCommandConsole(ICommandSender sender, String[] args)
 	{
-		if (args.length == 4)
+		if(args.length == 2)
+		{
+			if(args[0].equalsIgnoreCase("fill"))
+			{
+				int dim = this.parseIntWithMin(sender, args[1], 0);
+				ModuleWorldBorder.fillBorder(dim, sender);
+			}
+		}
+		else if (args.length == 4)
 		{
 			if(args[0].equalsIgnoreCase("set"))
 			{
@@ -90,6 +108,8 @@ public class CommandWB extends ForgeEssentialsCommandBase
 			sender.sendChatToPlayer(Localization.get(Localization.ERROR_BADSYNTAX) + getSyntaxConsole());
 		}
 	}
+	
+	
 	
 	@Override
 	public boolean canConsoleUseCommand()
@@ -113,7 +133,7 @@ public class CommandWB extends ForgeEssentialsCommandBase
     {
     	if(args.length==1)
     	{
-    		return getListOfStringsMatchingLastWord(args, "on", "off", "set");
+    		return getListOfStringsMatchingLastWord(args, "set");
     	}
     	else
     	{

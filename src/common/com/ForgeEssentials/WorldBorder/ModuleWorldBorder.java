@@ -2,9 +2,12 @@ package com.ForgeEssentials.WorldBorder;
 
 import java.util.EnumSet;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.EntityPlayerMP;
+import net.minecraft.src.ICommandSender;
 import net.minecraft.src.NBTTagCompound;
+import net.minecraft.src.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 
@@ -95,10 +98,29 @@ public class ModuleWorldBorder implements IFEModule, IScheduledTickHandler
 		DataStorage.setData("WorldBorder", borderData);
 		DataStorage.save();
 	}
+	
+	public static void fillBorder(int dim, ICommandSender sender)
+	{
+		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		WorldServer world = server.worldServers[dim];
+		
+		sender.sendChatToPlayer("Filling " + dim);
+		sender.sendChatToPlayer("minX:" + borderData.getInteger("minX") + "  maxX" + borderData.getInteger("maxX"));
+		sender.sendChatToPlayer("minZ:" + borderData.getInteger("minZ") + "  maxZ" + borderData.getInteger("maxZ"));
+		
+		for(int X = borderData.getInteger("minX"); X < borderData.getInteger("maxX"); X = X + 16)
+		{
+			for(int Z = borderData.getInteger("minZ"); Z < borderData.getInteger("maxZ"); Z = Z + 16)
+			{
+				OutputHandler.debug("Loading " + X + ";" + Z);
+				world.theChunkProviderServer.loadChunk(X, Z);
+			}
+		}
+	}
 
 	@Override
 	public void tickStart(EnumSet<TickType> type, Object... tickData) 
-	{		
+	{
 		try
 		{
 			if(this.ticks >= Integer.MAX_VALUE) this.ticks = 1;
