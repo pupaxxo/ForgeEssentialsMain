@@ -1,8 +1,6 @@
 package com.ForgeEssentials.WorldBorder;
 
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.IProgressUpdate;
-import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
 
 import com.ForgeEssentials.util.FEChatFormatCodes;
@@ -43,11 +41,6 @@ public class TickTaskFill implements ITickTask
 	protected int eta; //in ticks
 	protected Long ticks = 0L;
 	protected int chunksAtick = 1;
-	
-	public TickTaskFill(boolean canNotSaveBefore, WorldServer world)
-	{
-		
-	}
 	
 	public double getTPS()
 	{
@@ -106,10 +99,6 @@ public class TickTaskFill implements ITickTask
 	public void onComplete()
 	{
 		warnEveryone(Localization.get(Localization.WB_FILL_DONE));
-		this.world.canNotSave = false;
-		try {world.saveAllChunks(true, (IProgressUpdate)null);}
-		catch (MinecraftException e) {warnEveryone(Localization.get(Localization.WB_SAVING_FAILED));}
-		world.canNotSave = canNotSaveBefore;
 		warnEveryone(Localization.get(Localization.WB_FILL_FINISHED).replaceAll("%ticks", "" + ticks).replaceAll("%sec", "" + (int)(ticks / 20)));
 		CommandWB.taskGooing = null;
 	}
