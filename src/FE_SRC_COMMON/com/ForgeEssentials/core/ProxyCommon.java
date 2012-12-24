@@ -11,15 +11,6 @@ import cpw.mods.fml.common.network.Player;
 
 public class ProxyCommon
 {
-	public void preLoad(FMLPreInitializationEvent e)
-	{
-		
-	}
-	
-	public void load(FMLInitializationEvent e)
-	{
-		
-	}
 	
 	public void updateInfo(PlayerInfo info, EntityPlayer player)
 	{

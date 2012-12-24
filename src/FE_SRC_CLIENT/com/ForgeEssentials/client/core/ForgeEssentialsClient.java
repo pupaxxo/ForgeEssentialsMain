@@ -1,5 +1,10 @@
 package com.ForgeEssentials.client.core;
 
+import net.minecraftforge.common.MinecraftForge;
+
+import com.ForgeEssentials.client.CUI.CUIRenderrer;
+import com.ForgeEssentials.client.core.network.ClientConnectionHandler;
+
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -8,6 +13,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -32,8 +38,8 @@ public class ForgeEssentialsClient{
 	}
 
 	public void load(FMLInitializationEvent e) {
-		// TODO Auto-generated method stub
-		
+		NetworkRegistry.instance().registerConnectionHandler(new ClientConnectionHandler());
+		MinecraftForge.EVENT_BUS.register(new CUIRenderrer());
 	}
 
 	public void postLoad(FMLPostInitializationEvent e) {

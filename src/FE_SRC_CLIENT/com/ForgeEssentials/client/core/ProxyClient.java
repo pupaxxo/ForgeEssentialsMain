@@ -21,24 +21,6 @@ public class ProxyClient extends ProxyCommon
 {
 	private static PlayerInfoClient info;
 	
-	// needed? probably not...
-	public static final File FEDIRC = new File("./ForgeEssentialsClient/");
-	
-	@Override
-	public void preLoad(FMLPreInitializationEvent e)
-	{
-		// check directory constants and create...
-		if (!FEDIRC.exists() || !FEDIRC.isDirectory())
-			FEDIRC.mkdir();
-	}
-	
-	@Override
-	public void load(FMLInitializationEvent e)
-	{
-		NetworkRegistry.instance().registerConnectionHandler(new ClientConnectionHandler());
-		MinecraftForge.EVENT_BUS.register(new CUIRenderrer());
-	}
-	
 	@Override
 	public void updateInfo(PlayerInfo infoServer, EntityPlayer player)
 	{
