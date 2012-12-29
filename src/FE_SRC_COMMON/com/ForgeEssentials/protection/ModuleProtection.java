@@ -32,7 +32,6 @@ public class ModuleProtection implements IFEModule
 	
 	public ModuleProtection()
 	{
-		
 		OutputHandler.SOP("Protection module is enabled. Loading...");
 		config = new ConfigProtection();
 		MinecraftForge.EVENT_BUS.register(this);
@@ -41,6 +40,7 @@ public class ModuleProtection implements IFEModule
 	@ForgeSubscribe
 	public void playerInteractin(PlayerInteractEvent e)
 	{
+		/*
 		String perm = "ForgeEssentials.allowedit";
 		
 		if(e.action.equals(PlayerInteractEvent.Action.LEFT_CLICK_BLOCK))
@@ -67,8 +67,9 @@ public class ModuleProtection implements IFEModule
 		
 		if(!result)
 		{
-			e.setCanceled(true);
+			//e.setCanceled(true);
 		}
+		*/
 	}
 
 	/*
@@ -95,9 +96,7 @@ public class ModuleProtection implements IFEModule
 
 	@ForgeSubscribe
 	public void registerPermissions(ForgeEssentialsPermissionRegistrationEvent event)
-	{
-		System.out.println("SDSGFDJDGSDKFGDFSGLKGN");
-		
+	{	
 		event.registerPermissionDefault("ForgeEssentials.allowedit", false);
 		
 		event.registerPermissionDefault("ForgeEssentials.allowedit.leftclick", false);

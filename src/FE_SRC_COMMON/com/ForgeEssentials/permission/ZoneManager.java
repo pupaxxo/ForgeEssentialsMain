@@ -1,9 +1,11 @@
 package com.ForgeEssentials.permission;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -13,6 +15,7 @@ import com.ForgeEssentials.util.FunctionHelper;
 import com.ForgeEssentials.util.AreaSelector.AreaBase;
 import com.ForgeEssentials.util.AreaSelector.Point;
 import com.ForgeEssentials.util.AreaSelector.Selection;
+import com.ForgeEssentials.util.AreaSelector.WorldPoint;
 
 public class ZoneManager
 {
@@ -22,15 +25,15 @@ public class ZoneManager
 	public ZoneManager()
 	{
 		GLOBAL = new Zone("_GLOBAL_", null);
-		worldZoneMap = new HashMap<String, Zone>();
-		zoneMap = new TreeMap<String, Zone>();
+		worldZoneMap = new ConcurrentHashMap<String, Zone>();
+		zoneMap = Collections.synchronizedSortedMap(new TreeMap<String, Zone>());
 	}
 
 	// ----------------------------------------------
 	// ------------ WorldZone stuff -----------------
 	// ----------------------------------------------
 
-	protected static HashMap<String, Zone>	worldZoneMap;
+	protected static ConcurrentHashMap<String, Zone>	worldZoneMap;
 
 	// to load WorldZones
 	@ForgeSubscribe
@@ -65,7 +68,7 @@ public class ZoneManager
 	// ----------------------------------------------
 
 	// normal zone map. WorldZones and Globals are not included.
-	protected static TreeMap<String, Zone>	zoneMap;
+	protected static SortedMap<String, Zone>	zoneMap;
 
 	/**
 	 * WorldZones are not included here.
@@ -87,7 +90,9 @@ public class ZoneManager
 
 	public static Zone getZone(String zoneID)
 	{
-		if (zoneID.equals(GLOBAL.getZoneID()))
+		if (zoneID == null)
+			return null;
+		else if (zoneID.equals(GLOBAL.getZoneID()))
 			return GLOBAL;
 		else if (zoneID.startsWith("WORLD_"))
 			return worldZoneMap.get(zoneID);
@@ -144,6 +149,41 @@ public class ZoneManager
 					}
 			}
 	}
+	
+	public static Zone getWhichZoneIn(WorldPoint point)
+	{
+		Zone worldZone = getWorldZone(FunctionHelper.getDimension(point.dim));
+		ArrayList<Zone> zones = new ArrayList<Zone>();
+
+		// add all zones this point is in...
+		for (Zone zone : zoneMap.values())
+			if (zone.contains(point) && worldZone.isParentOf(zone))
+				zones.add(zone);
+
+		switch (zones.size())
+			{
+			// no children of the world? return the worldZone
+				case 0:
+					return worldZone;
+					// only 1 usable Zone? use it.
+				case 1:
+					return zones.get(0);
+
+					// else.. narrow it down
+				default:
+					{
+						// get the one with the highest priority
+						Zone priority = null;
+
+						for (Zone zone : zones)
+							if (priority == null || priority.compareTo(zone) < 0)
+								priority = zone;
+
+						return priority;
+					}
+			}
+	}
+
 
 	/**
 	 * used for AllorNothing areas..

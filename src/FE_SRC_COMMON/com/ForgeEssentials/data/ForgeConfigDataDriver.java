@@ -63,7 +63,7 @@ public class ForgeConfigDataDriver extends DataDriver
 	{
 		boolean wasSuccessful = false;
 		
-		File file = this.getFilePath(type, objectData.uniqueKey);
+		File file = this.getFilePath(type, objectData.uniqueKey.value);
 		
 		// Wipe existing Forge Configuration file - they don't take new data.
 		if (file.exists())
@@ -159,7 +159,7 @@ public class ForgeConfigDataDriver extends DataDriver
 		else if (field.type.equals(TaggedClass.class))
 		{
 			TaggedClass tag = (TaggedClass) field.value;
-			String newcat = category+"."+tag.type.getSimpleName();
+			String newcat = category+"."+field.name;
 			
 			for (SavedField f : tag.TaggedMembers.values())
 				writeFieldToProperty(cfg, newcat, f);
@@ -240,7 +240,7 @@ public class ForgeConfigDataDriver extends DataDriver
 				if (child.isChild() && child.parent == cat)  // intentional use of ==
 				{
 					field = data.new SavedField();
-					field.name = cat.getQualifiedName().replace(cat.getQualifiedName()+".", "");
+					field.name = child.getQualifiedName().replace(cat.getQualifiedName()+".", "");
 					field.type = tag.getTypeOfField(field.name);
 					field.value = readClassFromProperty(cfg, child, DataStorageManager.getTaggerForType(field.type));
 					data.addField(field);
