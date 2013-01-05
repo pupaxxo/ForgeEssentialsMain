@@ -62,13 +62,14 @@ public class Localization
 	public static final String	ERROR_NOITEMPLAYER				= "message.error.noItemPlayer";
 	public static final String	ERROR_NOITEMTARGET				= "message.error.noItemTarget";
 	public static final String	ERROR_NOMOB						= "message.error.noMobX";
+	public static final String	ERROR_PERM_SQL					= "message.error.permission.sql";
 
 	public static final String	DONE							= "message.done";
 
 	/*
 	 * Permissions stuff
 	 */
-
+	public static final String	ERROR_NOPERMISSION				= "message.error.nopermission";
 	public static final String	ERROR_ZONE_NOZONE				= "message.error.nozone";
 	public static final String	ERROR_ZONE_YESZONE				= "message.error.yeszone";
 	public static final String	CONFIRM_ZONE_REMOVE				= "message.confirm.zone.remove";
@@ -102,7 +103,16 @@ public class Localization
 	public static final String	TC_WARMUP						= "message.tc.warmup";
 	public static final String	TC_ABORTED						= "message.tc.aborted";
 	public static final String	TC_DONE							= "message.tc.done";
+	
+	/*
+	 * Chat 
+	 */
 
+	public static final String	CHAT_NICK_SELF_REMOVE			= "message.chat.nick.self.remove";
+	public static final String	CHAT_NICK_SELF_SET				= "message.chat.nick.self.set";
+	public static final String	CHAT_NICK_OTHERS_REMOVE			= "message.chat.nick.others.remove";
+	public static final String	CHAT_NICK_OTHERS_SET			= "message.chat.nick.others.set";
+	
 	/*
 	 * WorldBorder
 	 */
@@ -130,10 +140,13 @@ public class Localization
 
 	public static final String	WB_TURBO_INFO					= "message.wb.turbo.info";
 	public static final String	WB_TURBO_CONFIRM				= "message.wb.turbo.confirm";
-	public static final String	WB_TURBO_NOTHINGTODO			= "message.wb.turbo.nothingtodo";
+	public static final String	WB_NOTHINGTODO					= "message.wb.nothingtodo";
 	public static final String	WB_TURBO_ON						= "message.wb.turbo.on";
 	public static final String	WB_TURBO_OFF					= "message.wb.turbo.off";
 
+	public static final String	WB_AUTO_INFO					= "message.wb.auto.info";
+	public static final String	WB_AUTO_CONFIRM					= "message.wb.auto.confirm";
+	
 	public static final String	WB_SET							= "message.wb.set";
 
 	public static final String	UNIT_SECONDS					= "unit.seconds";

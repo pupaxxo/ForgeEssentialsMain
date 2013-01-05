@@ -1,9 +1,6 @@
 package com.ForgeEssentials.commands;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import net.minecraft.command.CommandHandler;
@@ -16,9 +13,37 @@ import com.ForgeEssentials.commands.util.ConfigCmd;
 import com.ForgeEssentials.commands.util.EventHandler;
 import com.ForgeEssentials.commands.util.PlayerTrackerCommands;
 import com.ForgeEssentials.commands.util.TickHandlerCommands;
+import com.ForgeEssentials.commands.vanilla.CommandBan;
+import com.ForgeEssentials.commands.vanilla.CommandBanIp;
+import com.ForgeEssentials.commands.vanilla.CommandBanlist;
+import com.ForgeEssentials.commands.vanilla.CommandDebug;
+import com.ForgeEssentials.commands.vanilla.CommandDefaultGameMode;
+import com.ForgeEssentials.commands.vanilla.CommandDeop;
+import com.ForgeEssentials.commands.vanilla.CommandDifficulty;
+import com.ForgeEssentials.commands.vanilla.CommandEnchant;
+import com.ForgeEssentials.commands.vanilla.CommandGameRule;
+import com.ForgeEssentials.commands.vanilla.CommandKick;
+import com.ForgeEssentials.commands.vanilla.CommandMe;
+import com.ForgeEssentials.commands.vanilla.CommandOp;
+import com.ForgeEssentials.commands.vanilla.CommandPardon;
+import com.ForgeEssentials.commands.vanilla.CommandPardonIp;
+import com.ForgeEssentials.commands.vanilla.CommandPublish;
+import com.ForgeEssentials.commands.vanilla.CommandSaveAll;
+import com.ForgeEssentials.commands.vanilla.CommandSaveOff;
+import com.ForgeEssentials.commands.vanilla.CommandSaveOn;
+import com.ForgeEssentials.commands.vanilla.CommandSay;
+import com.ForgeEssentials.commands.vanilla.CommandSeed;
+import com.ForgeEssentials.commands.vanilla.CommandStop;
+import com.ForgeEssentials.commands.vanilla.CommandTell;
+import com.ForgeEssentials.commands.vanilla.CommandTime;
+import com.ForgeEssentials.commands.vanilla.CommandToggleDownfall;
+import com.ForgeEssentials.commands.vanilla.CommandWeather;
+import com.ForgeEssentials.commands.vanilla.CommandWhitelist;
+import com.ForgeEssentials.commands.vanilla.CommandXP;
 import com.ForgeEssentials.core.IFEModule;
-import com.ForgeEssentials.permission.ForgeEssentialsPermissionRegistrationEvent;
-import com.ForgeEssentials.permission.PermissionsAPI;
+import com.ForgeEssentials.core.IModuleConfig;
+import com.ForgeEssentials.permission.PermissionRegistrationEvent;
+import com.ForgeEssentials.permission.RegGroup;
 import com.ForgeEssentials.util.OutputHandler;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -70,29 +95,68 @@ public class ModuleCommands implements IFEModule
 		//utility
 		e.registerServerCommand(new CommandButcher());
 		e.registerServerCommand(new CommandRemove());
-		e.registerServerCommand(new CommandKill());
-		e.registerServerCommand(new CommandSpawn());
+		e.registerServerCommand(new CommandSpawnMob());
 		e.registerServerCommand(new CommandTPS());
 		e.registerServerCommand(new CommandKit());
 		e.registerServerCommand(new CommandEnderchest());
 		e.registerServerCommand(new CommandVirtualchest());
 		e.registerServerCommand(new CommandCapabilities());
 		e.registerServerCommand(new CommandSetspawn());
+		e.registerServerCommand(new CommandJump());
+		e.registerServerCommand(new CommandCraft());
 		//op
 		e.registerServerCommand(new CommandServerDo());
 		//fun
 		e.registerServerCommand(new CommandSmite());
 		e.registerServerCommand(new CommandBurn());
 		e.registerServerCommand(new CommandPotion());
+		e.registerServerCommand(new CommandColorize());
 		//teleport
-		e.registerServerCommand(new CommandHome());
-		e.registerServerCommand(new CommandTpSpawn());
 		e.registerServerCommand(new CommandBack());
+		e.registerServerCommand(new CommandBed());
+		e.registerServerCommand(new CommandHome());
+		e.registerServerCommand(new CommandSpawn());
+		e.registerServerCommand(new CommandTp());
+		e.registerServerCommand(new CommandTphere());
+		e.registerServerCommand(new CommandTppos());
 		e.registerServerCommand(new CommandWarp());
 		//cheat
 		e.registerServerCommand(new CommandRepair());
 		e.registerServerCommand(new CommandHeal());
-		}
+		//Vanilla Override
+		e.registerServerCommand(new CommandBan());
+		e.registerServerCommand(new CommandBanIp());
+		e.registerServerCommand(new CommandBanlist());
+		e.registerServerCommand(new CommandDebug());
+		e.registerServerCommand(new CommandDefaultGameMode());
+		e.registerServerCommand(new CommandDeop());
+		e.registerServerCommand(new CommandDifficulty());
+		e.registerServerCommand(new CommandEnchant());
+		e.registerServerCommand(new CommandGameRule());
+//		e.registerServerCommand(new CommandHelp());
+		e.registerServerCommand(new CommandKick());
+		e.registerServerCommand(new CommandMe());
+		e.registerServerCommand(new CommandOp());
+		e.registerServerCommand(new CommandPardon());
+		e.registerServerCommand(new CommandPardonIp());
+		e.registerServerCommand(new CommandPublish());
+		e.registerServerCommand(new CommandSaveAll());
+		e.registerServerCommand(new CommandSaveOff());
+		e.registerServerCommand(new CommandSaveOn());
+		e.registerServerCommand(new CommandSay());
+		e.registerServerCommand(new CommandSeed());
+		e.registerServerCommand(new CommandStop());
+		e.registerServerCommand(new CommandTell());
+		e.registerServerCommand(new CommandTime());
+		e.registerServerCommand(new CommandToggleDownfall());
+		e.registerServerCommand(new CommandWeather());
+		e.registerServerCommand(new CommandWhitelist());
+		e.registerServerCommand(new CommandXP());
+		e.registerServerCommand(new CommandKill());
+		e.registerServerCommand(new CommandGive());
+		e.registerServerCommand(new CommandClearInventory());
+		e.registerServerCommand(new CommandGameMode());
+	}
 
 	@Override
 	public void serverStarted(FMLServerStartedEvent e)
@@ -117,7 +181,7 @@ public class ModuleCommands implements IFEModule
 					ICommand cmd = (ICommand) cmdObj;
 					if(!commandNames.add(cmd.getCommandName()))
 					{
-						System.out.println("Duplicate command found! Name:" + cmd.getCommandName());
+						OutputHandler.debug("Duplicate command found! Name:" + cmd.getCommandName());
 						toRemoveNames.add(cmd.getCommandName());
 					}
 				}
@@ -130,7 +194,7 @@ public class ModuleCommands implements IFEModule
 						Class<?> cmdClass = cmd.getClass();
 						if(!cmdClass.getPackage().getName().contains("ForgeEssentials"))
 						{
-							System.out.println("Removing command '" + cmd.getCommandName() + "' from class: " + cmdClass.getName());
+							OutputHandler.debug("Removing command '" + cmd.getCommandName() + "' from class: " + cmdClass.getName());
 							toRemove.add(cmd.getCommandName());
 						}
 					}
@@ -145,41 +209,26 @@ public class ModuleCommands implements IFEModule
 	}
 	
 	@ForgeSubscribe
-	public void registerPermissions(ForgeEssentialsPermissionRegistrationEvent event)
+	public void registerPermissions(PermissionRegistrationEvent event)
 	{
-		event.registerPermissionDefault("ForgeEssentials.commands", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.remove", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.restart", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.rules", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.serverdo", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.smite", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.kill", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.modlist", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.motd", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.burn", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.list", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.compass", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.repair", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.heal", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.tps", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.potion", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.enderchest", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.virtualchest", false);
-		event.registerPermissionDefault("ForgeEssentials.commands.setspawn", false);
-		
-		event.registerGlobalGroupPermissions(PermissionsAPI.GROUP_OWNERS, "ForgeEssentials.commands", true);
-		event.registerGlobalGroupPermissions(PermissionsAPI.GROUP_MEMBERS, "ForgeEssentials.commands.compass", true);
-		event.registerGlobalGroupPermissions(PermissionsAPI.GROUP_DEFAULT, "ForgeEssentials.commands.list", true);
-		event.registerGlobalGroupPermissions(PermissionsAPI.GROUP_DEFAULT, "ForgeEssentials.commands.rules", true);
-		event.registerGlobalGroupPermissions(PermissionsAPI.GROUP_DEFAULT, "ForgeEssentials.commands.motd", true);
-		event.registerGlobalGroupPermissions(PermissionsAPI.GROUP_DEFAULT, "ForgeEssentials.commands.tps", true);
-		event.registerGlobalGroupPermissions(PermissionsAPI.GROUP_DEFAULT, "ForgeEssentials.commands.modlist", true);
+		event.registerPerm(this, RegGroup.OWNERS, "ForgeEssentials.BasicCommands", true);
+		event.registerPerm(this, RegGroup.MEMBERS, "ForgeEssentials.BasicCommands.compass", true);
+		event.registerPerm(this, RegGroup.GUESTS, "ForgeEssentials.BasicCommands.list", true);
+		event.registerPerm(this, RegGroup.GUESTS, "ForgeEssentials.BasicCommands.rules", true);
+		event.registerPerm(this, RegGroup.GUESTS, "ForgeEssentials.BasicCommands.motd", true);
+		event.registerPerm(this, RegGroup.GUESTS, "ForgeEssentials.BasicCommands.tps", true);
+		event.registerPerm(this, RegGroup.GUESTS, "ForgeEssentials.BasicCommands.modlist", true);
 	}
 
 	@Override
 	public void serverStopping(FMLServerStoppingEvent e)
 	{
 		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public IModuleConfig getConfig() 
+	{
+		return conf;
 	}
 }

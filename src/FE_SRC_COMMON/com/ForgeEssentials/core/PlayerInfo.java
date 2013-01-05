@@ -59,7 +59,7 @@ public class PlayerInfo
 	}
 	
 	@Reconstructor()
-	private static PlayerInfo reconstruct(TaggedClass tag)
+	public static PlayerInfo reconstruct(TaggedClass tag)
 	{
 		String username = (String) tag.getFieldValue("username");
 		
@@ -73,7 +73,9 @@ public class PlayerInfo
 		
 		info.spawnType = (Integer) tag.getFieldValue("spawnType");
 		
-		return null;
+		info.prefix = (String) tag.getFieldValue("prefix");
+		info.suffix = (String) tag.getFieldValue("suffix");
+		return info;
 	}
 
 	// -------------------------------------------------------------------------------------------
@@ -103,6 +105,12 @@ public class PlayerInfo
 	@SaveableField(nullableField = true)
 	public WorldPoint back;
 	
+	@SaveableField()
+	public String prefix;
+	
+	@SaveableField()
+	public String suffix;
+	
 	// 0: Normal 1: World spawn 2: Bed 3: Home
 	@SaveableField
 	public int spawnType;
@@ -123,6 +131,9 @@ public class PlayerInfo
 
 		undos = new Stack<BackupArea>();
 		redos = new Stack<BackupArea>();
+		
+		prefix = "";
+		suffix = "";
 	}
 	
 	/**
@@ -250,5 +261,14 @@ public class PlayerInfo
 		BackupArea back = redos.pop();
 		undos.push(back);
 		return back;
+	}
+	
+	public void clearSelection()
+	{
+		this.selection = null;
+		this.sel1 = null;
+		this.sel2 = null;
+		EntityPlayer player = FMLCommonHandler.instance().getSidedDelegate().getServer().getConfigurationManager().getPlayerForUsername(username);
+		PacketDispatcher.sendPacketToPlayer((new PacketSelectionUpdate(this)).getPayload(), (Player)player);
 	}
 }

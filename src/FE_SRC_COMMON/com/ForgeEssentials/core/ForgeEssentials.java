@@ -10,6 +10,7 @@ import com.ForgeEssentials.core.commands.CommandFEReload;
 import com.ForgeEssentials.core.commands.CommandFEUpdate;
 import com.ForgeEssentials.core.commands.CommandFEVersion;
 import com.ForgeEssentials.core.misc.BannedItems;
+import com.ForgeEssentials.core.misc.ItemList;
 import com.ForgeEssentials.core.misc.ModListFile;
 import com.ForgeEssentials.core.network.PacketHandler;
 import com.ForgeEssentials.data.DataStorageManager;
@@ -17,7 +18,7 @@ import com.ForgeEssentials.data.ForgeConfigDataDriver;
 import com.ForgeEssentials.data.MySQLDataDriver;
 import com.ForgeEssentials.data.NBTDataDriver;
 import com.ForgeEssentials.data.SQLiteDataDriver;
-import com.ForgeEssentials.permission.ForgeEssentialsPermissionRegistrationEvent;
+import com.ForgeEssentials.permission.PermissionRegistrationEvent;
 import com.ForgeEssentials.util.DataStorage;
 import com.ForgeEssentials.util.FunctionHelper;
 import com.ForgeEssentials.util.Localization;
@@ -74,6 +75,7 @@ public class ForgeEssentials
 
 	public static DataStorageManager	dataManager;
 	public BannedItems					bannedItems;
+	private ItemList 					itemList;
 
 	@PreInit
 	public void preInit(FMLPreInitializationEvent e)
@@ -131,6 +133,8 @@ public class ForgeEssentials
 	{
 		mdlaunch.postLoad(e);
 		bannedItems.postLoad(e);
+		
+		itemList = new ItemList();
 	}
 
 	@ServerStarting
@@ -157,9 +161,9 @@ public class ForgeEssentials
 	}
 
 	@ForgeSubscribe
-	public void registerPermissions(ForgeEssentialsPermissionRegistrationEvent event)
+	public void registerPermissions(PermissionRegistrationEvent event)
 	{
-		event.registerPermissionDefault("ForgeEssentials.commands.reload", false);
+		
 	}
 
 	@ServerStarted

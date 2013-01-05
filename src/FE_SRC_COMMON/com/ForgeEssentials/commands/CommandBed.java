@@ -10,6 +10,7 @@ import net.minecraft.util.ChunkCoordinates;
 
 import com.ForgeEssentials.core.PlayerInfo;
 import com.ForgeEssentials.core.commands.ForgeEssentialsCommandBase;
+import com.ForgeEssentials.util.FunctionHelper;
 import com.ForgeEssentials.util.Localization;
 import com.ForgeEssentials.util.OutputHandler;
 import com.ForgeEssentials.util.AreaSelector.Point;
@@ -17,7 +18,7 @@ import com.ForgeEssentials.util.AreaSelector.WorldPoint;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 
-public class CommandTpSpawn extends ForgeEssentialsCommandBase
+public class CommandBed extends ForgeEssentialsCommandBase
 {
 
 	/** Spawn point for each dimension */
@@ -26,7 +27,7 @@ public class CommandTpSpawn extends ForgeEssentialsCommandBase
 	@Override
 	public String getCommandName()
 	{
-		return "tpspawn";
+		return "bed";
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class CommandTpSpawn extends ForgeEssentialsCommandBase
 	{
 		if (args.length >= 1)
 		{
-			EntityPlayer player = FMLCommonHandler.instance().getSidedDelegate().getServer().getConfigurationManager().getPlayerForUsername(args[0]);
+			EntityPlayer player = FunctionHelper.getPlayerFromUsername(args[0]);
 			if (player != null)
 			{
 				ChunkCoordinates spawn = player.getBedLocation();

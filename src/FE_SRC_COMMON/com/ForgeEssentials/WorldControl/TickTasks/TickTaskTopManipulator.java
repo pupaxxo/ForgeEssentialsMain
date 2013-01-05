@@ -112,7 +112,7 @@ public class TickTaskTopManipulator implements ITickTask
 						}
 						break;
 					case SNOW:
-						if (Block.isNormalCube(world.getBlockId(x, y, z)))
+						if (Block.isNormalCube(world.getBlockId(x, y, z)) || Block.blocksList[blockID].isLeaves(world, x, y, z))
 						{
 							// Add snow covering to the block above.
 							backup.before.add(new BlockSaveable(world, x, y + 1, z));

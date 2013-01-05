@@ -22,6 +22,7 @@ public class MySQLDataDriver extends DataDriver
 {
 	private static String separationString = "__";
 	private String DriverClass = "com.mysql.jdbc.Driver";
+	private boolean isConfigured = false;
 	private Connection dbConnection;
 	private HashMap<Class, Boolean> classTableChecked = new HashMap<Class, Boolean>();
 	
@@ -35,7 +36,7 @@ public class MySQLDataDriver extends DataDriver
 
 		// Set up the MySQL connection.
 		Property prop;
-		prop = config.get("Data.SQL", "server", "localhost");
+		prop = config.get("Data.SQL", "server", "server.example.com");
 		prop.comment = "Server name/IP that hosts the database.";
 		String server = prop.value;
 
@@ -55,23 +56,28 @@ public class MySQLDataDriver extends DataDriver
 		prop.comment = "Password to log into DB with";
 		String password = prop.value;
 		
-		connectionString = "jdbc:mysql://" + server + ":" + port + "/" + database;;
-
-		try
+		
+		if (!server.equalsIgnoreCase("server.example.com"))
 		{
-			Class driverClass = Class.forName(DriverClass);
-
-			this.dbConnection = DriverManager.getConnection(connectionString, username, password);
-		}
-		catch (SQLException e)
-		{
-			OutputHandler.SOP("Unable to connect to the database!");
-			throw e;
-		}
-		catch (ClassNotFoundException e)
-		{
-			OutputHandler.SOP("Could not load the MySQL JDBC Driver! Does it exist in the lib directory?");
-			throw e;
+			connectionString = "jdbc:mysql://" + server + ":" + port + "/" + database;;
+	
+			try
+			{
+				Class driverClass = Class.forName(DriverClass);
+	
+				this.dbConnection = DriverManager.getConnection(connectionString, username, password);
+				this.isConfigured = true;
+			}
+			catch (SQLException e)
+			{
+				OutputHandler.SOP("Unable to connect to the database. Check your connection info.");
+				throw e;
+			}
+			catch (ClassNotFoundException e)
+			{
+				OutputHandler.SOP("Could not load the MySQL JDBC Driver! Does it exist in the lib directory?");
+				throw e;
+			}
 		}
 	}
 
@@ -82,7 +88,12 @@ public class MySQLDataDriver extends DataDriver
 		// If this is the first time registering a class that is NOT saved inline,
 		//  attempt to create a table.
 		if (!(tagger.inLine || this.classTableChecked.containsKey(tagger.forType)))
-			this.createTable(tagger.forType);
+		{
+			if (this.isConfigured)
+			{
+				this.createTable(tagger.forType);
+			}
+		}
 	}
 
 	@Override
@@ -90,18 +101,21 @@ public class MySQLDataDriver extends DataDriver
 	{
 		boolean isSuccess = false;
 
-		try
+		if (this.isConfigured)
 		{
-			Statement s;
-			s = this.dbConnection.createStatement();
-			int count = s.executeUpdate(createInsertStatement(type, fieldList));
-			
-			isSuccess = true;
-		}
-		catch (SQLException e)
-		{
-			OutputHandler.SOP("Couldn't save object of type " + type.getSimpleName() + " to MySQL DB. Server will continue running.");
-			e.printStackTrace();
+			try
+			{
+				Statement s;
+				s = this.dbConnection.createStatement();
+				int count = s.executeUpdate(createInsertStatement(type, fieldList));
+				
+				isSuccess = true;
+			}
+			catch (SQLException e)
+			{
+				OutputHandler.SOP("Couldn't save object of type " + type.getSimpleName() + " to MySQL DB. Server will continue running.");
+				e.printStackTrace();
+			}
 		}
 
 		return isSuccess;
@@ -112,21 +126,24 @@ public class MySQLDataDriver extends DataDriver
 	{
 		TaggedClass reconstructed = null;
 		
-		try
+		if (isConfigured)
 		{
-			Statement s = this.dbConnection.createStatement();
-			ResultSet result = s.executeQuery(this.createSelectStatement(type, uniqueKey));
-			
-			// ResultSet initially sits just before first result.
-			if (result.next())
+			try
 			{
-				// Should only be one item in this set.
-				reconstructed = this.createTaggedClassFromResult(type, this.resultRowToMap(result));
+				Statement s = this.dbConnection.createStatement();
+				ResultSet result = s.executeQuery(this.createSelectStatement(type, uniqueKey));
+				
+				// ResultSet initially sits just before first result.
+				if (result.next())
+				{
+					// Should only be one item in this set.
+					reconstructed = this.createTaggedClassFromResult(type, this.resultRowToMap(result));
+				}
 			}
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
 		}
 
 		return reconstructed;
@@ -137,20 +154,23 @@ public class MySQLDataDriver extends DataDriver
 	{
 		ArrayList<TaggedClass> values = new ArrayList<TaggedClass>();
 		
-		try
+		if (this.isConfigured)
 		{
-			Statement s = this.dbConnection.createStatement();
-			ResultSet result = s.executeQuery(this.createSelectAllStatement(type));
-			
-			while (result.next())
+			try
 			{
-				// Continue reading rows as they exist.
-				values.add(this.createTaggedClassFromResult(type, this.resultRowToMap(result)));
-			}			
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
+				Statement s = this.dbConnection.createStatement();
+				ResultSet result = s.executeQuery(this.createSelectAllStatement(type));
+				
+				while (result.next())
+				{
+					// Continue reading rows as they exist.
+					values.add(this.createTaggedClassFromResult(type, this.resultRowToMap(result)));
+				}			
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
 		}
 
 		return values.toArray(new TaggedClass[values.size()]);
@@ -161,17 +181,20 @@ public class MySQLDataDriver extends DataDriver
 	{
 		boolean isSuccess = false;
 
-		try
+		if (this.isConfigured)
 		{
-			Statement s = this.dbConnection.createStatement();
-			s.execute(this.createDeleteStatement(type, uniqueObjectKey));
-			
-			isSuccess = true;
-		}
-		catch (SQLException e)
-		{
-			OutputHandler.SOP("Problem deleting data from MySQL DB (May not actually be a critical error):");
-			e.printStackTrace();
+			try
+			{
+				Statement s = this.dbConnection.createStatement();
+				s.execute(this.createDeleteStatement(type, uniqueObjectKey));
+				
+				isSuccess = true;
+			}
+			catch (SQLException e)
+			{
+				OutputHandler.SOP("Problem deleting data from MySQL DB (May not actually be a critical error):");
+				e.printStackTrace();
+			}
 		}
 		
 		return isSuccess;
@@ -583,17 +606,17 @@ public class MySQLDataDriver extends DataDriver
 	private Object valueToField(Class targetType, Object dbValue)
 	{
 		Object value = null;
-		if (targetType.equals(Integer.class))
+		if (targetType.equals(int.class))
 		{
 			// DB Value is an integer
 			value = (Integer)dbValue;
 		}
-		else if (targetType.equals(Double.class))
+		else if (targetType.equals(double.class))
 		{
 			// DB Value is a double
 			value = (Double)dbValue;
 		}
-		else if (targetType.equals(Float.class))
+		else if (targetType.equals(float.class))
 		{
 			// DB value is a Double.
 			value = (Float)((Double)dbValue).floatValue();
@@ -603,7 +626,7 @@ public class MySQLDataDriver extends DataDriver
 			// DB Value is a string
 			value = (String)dbValue;
 		}
-		else if (targetType.equals(Boolean.class))
+		else if (targetType.equals(boolean.class))
 		{
 			// DB Value is an integer (1=true, 0=false)
 			value = ((Integer)dbValue).equals(1);
